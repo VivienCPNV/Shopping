@@ -5,10 +5,12 @@ const EmptyCartException = require("./EmptyCartException.js");
 const CartItem = require("../CartItem/CartItem.js");
 
 module.exports = class Cart {
-    #cartItems = Array();
+    #cartItems;
 
     constructor(items) {
-        this.#cartItems = items;
+        if(items) {
+            this.add(items);
+        }
     }
 
     get items () {
@@ -19,22 +21,16 @@ module.exports = class Cart {
     }
 
     get total () {
-        if (!Array.isArray(this.#cartItems)) {
-            throw new EmptyCartException();
-        }
         let total = 0;
-        this.#cartItems.forEach((item) => {
+        this.items.forEach((item) => {
             total += item.price * item.quantity;
         })
         return total;
     }
 
     count (distinct = false) {
-        if (!Array.isArray(this.#cartItems)) {
-            throw new EmptyCartException();
-        }
         let itemCount = 0;
-        this.#cartItems.forEach((item) => {
+        this.items.forEach((item) => {
             itemCount += (distinct) ? 1 : item.quantity;
         })
         return itemCount;
