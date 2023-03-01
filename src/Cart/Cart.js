@@ -1,7 +1,5 @@
 "use strict";
 
-const UpdateCartException = require("./UpdateCartException.js");
-const EmptyCartException = require("./EmptyCartException.js");
 const MultipleCurrenciesException = require("./MultipleCurrenciesException");
 const CartItem = require("../CartItem/CartItem.js");
 
@@ -14,9 +12,6 @@ module.exports = class Cart {
     }
 
     get items () {
-        if (!Array.isArray(this.#cartItems)) {
-            throw new EmptyCartException();
-        }
         return this.#cartItems;
     }
 
@@ -44,22 +39,15 @@ module.exports = class Cart {
         if(!Array.isArray(this.#cartItems)) {
             this.#cartItems = Array();
         }
-        if(Array.isArray(items)) {
-            if(!this.#cartItems.length && items.length) {
-                this.#currency = items[0].currency;
-            }
-            items.forEach((item) => {
-                if(!(item instanceof CartItem)) {
-                    throw new UpdateCartException();
-                } else {
-                    if(item.currency != this.#currency) {
-                        throw new MultipleCurrenciesException();
-                    }
-                    this.#cartItems.push(item);
-                }
-            })
-        } else {
-            throw new UpdateCartException();
+        // We check if the cart is empty and  if the items aren't empty before we update the currency
+        if(!this.#cartItems.length && items.length) {
+            this.#currency = items[0].currency;
         }
+        items.forEach((item) => {
+            if(item.currency != this.#currency) {
+                throw new MultipleCurrenciesException();
+            }
+            this.#cartItems.push(item);
+        })
     }
 }
